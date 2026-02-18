@@ -51,7 +51,7 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
         </button>
       ) : (
         <div className="flex items-center gap-4">
-          <div className="bg-gray-800 text-white px-4 py-2 rounded-lg">
+          <div className="bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2 rounded-lg transition-colors">
             {address.slice(0, 6)}...{address.slice(-4)}
           </div>
           <button
