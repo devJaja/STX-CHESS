@@ -1,0 +1,14 @@
+{
+  "name": "stack-chess",
+  "version": "1.0.0",
+  "description": "Chess game on Stacks blockchain",
+  "scripts": {
+    "test": "vitest run",
+    "check": "clarinet check",
+    "console": "clarinet console"
+  },
+  "devDependencies": {
+    "@hirosystems/clarinet-sdk": "^2.0.0",
+    "vitest": "^1.0.0"
+  }
+}

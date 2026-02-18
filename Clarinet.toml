@@ -1,0 +1,20 @@
+[project]
+name = "stack-chess"
+authors = []
+description = "Chess game on Stacks blockchain"
+telemetry = false
+cache_dir = "./.cache"
+requirements = []
+[contracts.chess]
+path = "contracts/chess.clar"
+clarity_version = 2
+epoch = 2.4
+
+[repl.analysis]
+passes = ["check_checker"]
+
+[repl.analysis.check_checker]
+strict = false
+trusted_sender = false
+trusted_caller = false
+callee_filter = false
