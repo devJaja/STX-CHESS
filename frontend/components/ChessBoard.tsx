@@ -50,10 +50,10 @@ export default function ChessBoard({ gameId, userAddress }: ChessBoardProps) {
   };
 
   return (
-    <div className="bg-gray-800 rounded-xl p-6 shadow-2xl">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-2xl transition-colors duration-300">
       <div className="flex justify-between items-center mb-4">
-        <div className="text-white">
-          <p className="text-sm text-gray-400">Turn</p>
+        <div className="text-gray-900 dark:text-white">
+          <p className="text-sm text-gray-600 dark:text-gray-400">Turn</p>
           <p className="font-bold">{game.turn() === 'w' ? 'White' : 'Black'}</p>
         </div>
         {game.isGameOver() && (
@@ -69,7 +69,7 @@ export default function ChessBoard({ gameId, userAddress }: ChessBoardProps) {
         </button>
       </div>
 
-      <div className="grid grid-cols-8 gap-0 w-full aspect-square max-w-2xl mx-auto border-4 border-gray-700 rounded-lg overflow-hidden">
+      <div className="grid grid-cols-8 gap-0 w-full aspect-square max-w-2xl mx-auto border-4 border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
         {board.map((row, rowIndex) => 
           row.map((square, colIndex) => {
             const squareName = String.fromCharCode(97 + colIndex) + (8 - rowIndex);
@@ -83,7 +83,7 @@ export default function ChessBoard({ gameId, userAddress }: ChessBoardProps) {
                 onClick={() => handleSquareClick(rowIndex, colIndex)}
                 className={`
                   flex items-center justify-center cursor-pointer text-5xl
-                  ${isLight ? 'bg-amber-100' : 'bg-amber-700'}
+                  ${isLight ? 'bg-amber-100 dark:bg-amber-200' : 'bg-amber-600 dark:bg-amber-700'}
                   ${isSelected ? 'ring-4 ring-blue-500' : ''}
                   ${isLegalMove ? 'ring-4 ring-green-400' : ''}
                   hover:opacity-80 transition
