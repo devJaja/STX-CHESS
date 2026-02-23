@@ -38,7 +38,7 @@ export default function GameControls({ gameId, setGameId, userAddress, userSessi
       const response = await (window as any).LeatherProvider.request('stx_callContract', {
         contract: `${CONTRACT_ADDRESS}.${CONTRACT_NAME}`,
         functionName: 'create-game',
-        functionArgs: [`0x${serializeCV(principalCV(opponentAddress)).toString('hex')}`],
+        functionArgs: [`'${opponentAddress}`],
         network: NETWORK.isMainnet() ? 'mainnet' : 'testnet',
       });
       
@@ -71,10 +71,7 @@ export default function GameControls({ gameId, setGameId, userAddress, userSessi
       const response = await (window as any).LeatherProvider.request('stx_callContract', {
         contract: `${CONTRACT_ADDRESS}.${CONTRACT_NAME}`,
         functionName: 'make-move',
-        functionArgs: [
-          `0x${serializeCV(uintCV(gameId)).toString('hex')}`,
-          `0x${serializeCV(stringAsciiCV(pendingMove)).toString('hex')}`
-        ],
+        functionArgs: [`u${gameId}`, `"${pendingMove}"`],
         network: NETWORK.isMainnet() ? 'mainnet' : 'testnet',
       });
       
