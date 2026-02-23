@@ -24,6 +24,7 @@
 
 (define-public (create-game (opponent principal))
   (let ((game-id (+ (var-get game-counter) u1)))
+    (asserts! (not (is-eq tx-sender opponent)) (err u105))
     (map-set games
       { game-id: game-id }
       {

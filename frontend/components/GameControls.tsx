@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { stringAsciiCV, uintCV, serializeCV } from '@stacks/transactions';
+import { principalCV, stringAsciiCV, uintCV, serializeCV } from '@stacks/transactions';
 import { UserSession } from '@stacks/connect';
 import { NETWORK, CONTRACT_ADDRESS, CONTRACT_NAME } from '@/lib/stacks';
 
@@ -38,7 +38,7 @@ export default function GameControls({ gameId, setGameId, userAddress, userSessi
       const response = await (window as any).LeatherProvider.request('stx_callContract', {
         contract: `${CONTRACT_ADDRESS}.${CONTRACT_NAME}`,
         functionName: 'create-game',
-        functionArgs: [`0x${serializeCV(stringAsciiCV(opponentAddress)).toString('hex')}`],
+        functionArgs: [`0x${serializeCV(principalCV(opponentAddress)).toString('hex')}`],
         network: NETWORK.isMainnet() ? 'mainnet' : 'testnet',
       });
       
