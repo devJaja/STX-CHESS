@@ -3,7 +3,7 @@ import { callReadOnlyFunction, cvToJSON, uintCV } from '@stacks/transactions';
 
 export const NETWORK = new StacksMainnet();
 export const CONTRACT_ADDRESS = 'SP19PS42C7R7BR4VCX2YN8KPHXSB0ZC19K6PFEKTC';
-export const CONTRACT_NAME = 'chess';
+export const CONTRACT_NAME = 'chess-v2';
 
 export async function getGame(gameId: number) {
   try {

@@ -9,7 +9,7 @@ plan:
     - id: 0
       transactions:
         - contract-publish:
-            contract-name: chess
+            contract-name: chess-v2
             expected-sender: SP19PS42C7R7BR4VCX2YN8KPHXSB0ZC19K6PFEKTC
             cost: 726847
             path: contracts/chess.clar
