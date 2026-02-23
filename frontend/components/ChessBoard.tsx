@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { Chess } from 'chess.js';
+import { getGame } from '@/lib/stacks';
 
 interface ChessBoardProps {
   gameId: number | null;
   userAddress: string;
+  onMove: (move: string) => void;
 }
 
 const PIECES: { [key: string]: string } = {
@@ -13,10 +15,26 @@ const PIECES: { [key: string]: string } = {
   'P': '♙', 'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔'
 };
 
-export default function ChessBoard({ gameId, userAddress }: ChessBoardProps) {
+export default function ChessBoard({ gameId, userAddress, onMove }: ChessBoardProps) {
   const [game, setGame] = useState(new Chess());
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [legalMoves, setLegalMoves] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (gameId) {
+      getGame(gameId).then(data => {
+        if (data?.value) {
+          const moves = data.value.moves?.value || [];
+          const newGame = new Chess();
+          moves.forEach((m: any) => {
+            const moveStr = m.value;
+            newGame.move({ from: moveStr.slice(0, 2), to: moveStr.slice(2, 4) });
+          });
+          setGame(newGame);
+        }
+      });
+    }
+  }, [gameId]);
 
   const board = game.board();
 
@@ -27,6 +45,7 @@ export default function ChessBoard({ gameId, userAddress }: ChessBoardProps) {
       try {
         const move = game.move({ from: selectedSquare, to: square });
         if (move) {
+          onMove(selectedSquare + square);
           setGame(new Chess(game.fen()));
           setSelectedSquare(null);
           setLegalMoves([]);
@@ -43,12 +62,6 @@ export default function ChessBoard({ gameId, userAddress }: ChessBoardProps) {
     }
   };
 
-  const resetGame = () => {
-    setGame(new Chess());
-    setSelectedSquare(null);
-    setLegalMoves([]);
-  };
-
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-2xl transition-colors duration-300">
       <div className="flex justify-between items-center mb-4">
@@ -61,12 +74,6 @@ export default function ChessBoard({ gameId, userAddress }: ChessBoardProps) {
             {game.isCheckmate() ? 'Checkmate!' : game.isDraw() ? 'Draw!' : 'Game Over'}
           </div>
         )}
-        <button 
-          onClick={resetGame}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition"
-        >
-          Reset
-        </button>
       </div>
 
       <div className="grid grid-cols-8 gap-0 w-full aspect-square max-w-2xl mx-auto border-4 border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">

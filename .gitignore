@@ -11,3 +11,5 @@ build
 next-env.d.ts
 .cache
 .clarinet
+settings/Mainnet.toml
+settings/Testnet.toml

@@ -1,19 +1,25 @@
 'use client';
 
 import { useState } from 'react';
+import { stringAsciiCV, uintCV, serializeCV } from '@stacks/transactions';
+import { UserSession } from '@stacks/connect';
+import { NETWORK, CONTRACT_ADDRESS, CONTRACT_NAME } from '@/lib/stacks';
 
 interface GameControlsProps {
   gameId: number | null;
-  setGameId: (id: number) => void;
+  setGameId: (id: number | null) => void;
   userAddress: string;
+  userSession: UserSession | null;
+  pendingMove: string;
+  setPendingMove: (move: string) => void;
 }
 
-export default function GameControls({ gameId, setGameId, userAddress }: GameControlsProps) {
+export default function GameControls({ gameId, setGameId, userAddress, userSession, pendingMove, setPendingMove }: GameControlsProps) {
   const [opponentAddress, setOpponentAddress] = useState('');
   const [loading, setLoading] = useState(false);
 
   const createGame = async () => {
-    if (!userAddress) {
+    if (!userAddress || !userSession) {
       alert('Please connect your wallet first');
       return;
     }
@@ -22,13 +28,70 @@ export default function GameControls({ gameId, setGameId, userAddress }: GameCon
       return;
     }
 
+    if (!(window as any).LeatherProvider) {
+      alert('Leather wallet not detected. Please install Leather wallet extension.');
+      return;
+    }
+
     setLoading(true);
-    // TODO: Call smart contract to create game
-    setTimeout(() => {
-      setGameId(1);
+    try {
+      const response = await (window as any).LeatherProvider.request('stx_callContract', {
+        contract: `${CONTRACT_ADDRESS}.${CONTRACT_NAME}`,
+        functionName: 'create-game',
+        functionArgs: [`0x${serializeCV(stringAsciiCV(opponentAddress)).toString('hex')}`],
+        network: NETWORK.isMainnet() ? 'mainnet' : 'testnet',
+      });
+      
+      console.log('Response:', response);
+      if (response?.result?.txid) {
+        alert(`Game created! TX: ${response.result.txid}`);
+        setGameId(1);
+      }
+    } catch (error: any) {
+      console.error('Full error:', error);
+      const errorMsg = error?.error?.message || error?.message || JSON.stringify(error) || 'Unknown error';
+      if (error?.error?.code !== 4001) {
+        alert(`Failed to create game: ${errorMsg}`);
+      }
+    } finally {
       setLoading(false);
-      alert('Game created! Game ID: 1');
-    }, 1000);
+    }
+  };
+
+  const submitMove = async () => {
+    if (!userAddress || !userSession || !gameId || !pendingMove) return;
+
+    if (!(window as any).LeatherProvider) {
+      alert('Leather wallet not detected. Please install Leather wallet extension.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await (window as any).LeatherProvider.request('stx_callContract', {
+        contract: `${CONTRACT_ADDRESS}.${CONTRACT_NAME}`,
+        functionName: 'make-move',
+        functionArgs: [
+          `0x${serializeCV(uintCV(gameId)).toString('hex')}`,
+          `0x${serializeCV(stringAsciiCV(pendingMove)).toString('hex')}`
+        ],
+        network: NETWORK.isMainnet() ? 'mainnet' : 'testnet',
+      });
+      
+      console.log('Response:', response);
+      if (response?.result?.txid) {
+        alert(`Move submitted! TX: ${response.result.txid}`);
+        setPendingMove('');
+      }
+    } catch (error: any) {
+      console.error('Full error:', error);
+      const errorMsg = error?.error?.message || error?.message || JSON.stringify(error) || 'Unknown error';
+      if (error?.error?.code !== 4001) {
+        alert(`Failed to make move: ${errorMsg}`);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -43,7 +106,7 @@ export default function GameControls({ gameId, setGameId, userAddress }: GameCon
               type="text"
               value={opponentAddress}
               onChange={(e) => setOpponentAddress(e.target.value)}
-              placeholder="ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC"
+              placeholder="SP2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC"
               className="w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-2 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition-colors"
             />
           </div>
@@ -63,10 +126,20 @@ export default function GameControls({ gameId, setGameId, userAddress }: GameCon
             <p className="text-gray-900 dark:text-white text-2xl font-bold">{gameId}</p>
           </div>
 
-          <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg transition-colors">
-            <p className="text-gray-600 dark:text-gray-400 text-sm">Status</p>
-            <p className="text-green-600 dark:text-green-400 font-bold">Active</p>
-          </div>
+          {pendingMove && (
+            <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-lg">
+              <p className="text-gray-600 dark:text-gray-400 text-sm">Pending Move</p>
+              <p className="text-gray-900 dark:text-white font-bold">{pendingMove}</p>
+            </div>
+          )}
+
+          <button
+            onClick={submitMove}
+            disabled={loading || !pendingMove}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition"
+          >
+            {loading ? 'Submitting...' : 'Submit Move to Blockchain'}
+          </button>
 
           <button
             onClick={() => setGameId(null)}
@@ -76,24 +149,6 @@ export default function GameControls({ gameId, setGameId, userAddress }: GameCon
           </button>
         </div>
       )}
-
-      <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 transition-colors">
-        <h3 className="text-gray-900 dark:text-white font-bold mb-3">Game Stats</h3>
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between text-gray-700 dark:text-gray-300">
-            <span>Total Games:</span>
-            <span className="text-gray-900 dark:text-white font-bold">0</span>
-          </div>
-          <div className="flex justify-between text-gray-700 dark:text-gray-300">
-            <span>Wins:</span>
-            <span className="text-green-600 dark:text-green-400 font-bold">0</span>
-          </div>
-          <div className="flex justify-between text-gray-700 dark:text-gray-300">
-            <span>Losses:</span>
-            <span className="text-red-600 dark:text-red-400 font-bold">0</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
