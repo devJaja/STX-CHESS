@@ -1,15 +1,28 @@
+# Dependencies
 node_modules
+
+# Next.js build output
 .next
 out
 dist
 build
-.DS_Store
-*.log
-.env*.local
-.vercel
 *.tsbuildinfo
 next-env.d.ts
-.cache
+
+# Environment variables (never commit secrets)
+.env
+.env.local
+.env*.local
+
+# Clarinet / Stacks
 .clarinet
+.cache
+
+# Deployment secrets
 settings/Mainnet.toml
 settings/Testnet.toml
+
+# OS / editor
+.DS_Store
+*.log
+.vercel
