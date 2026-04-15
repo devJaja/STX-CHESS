@@ -1,20 +1,25 @@
-import { StacksMainnet } from '@stacks/network';
+import { StacksMainnet, StacksTestnet } from '@stacks/network';
 import { callReadOnlyFunction, cvToJSON, uintCV } from '@stacks/transactions';
 
-// ── Contract config ──────────────────────────────────────────
-export const NETWORK          = new StacksMainnet();
-export const CONTRACT_ADDRESS = 'SP19PS42C7R7BR4VCX2YN8KPHXSB0ZC19K6PFEKTC';
-export const CONTRACT_NAME    = 'chess-v2';
+// ── Config (env vars with fallbacks) ────────────────────────
+const isMainnet = process.env.NEXT_PUBLIC_NETWORK !== 'testnet';
 
-// ── Helpers ──────────────────────────────────────────────────
+export const NETWORK          = isMainnet ? new StacksMainnet() : new StacksTestnet();
+export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? 'SP19PS42C7R7BR4VCX2YN8KPHXSB0ZC19K6PFEKTC';
+export const CONTRACT_NAME    = process.env.NEXT_PUBLIC_CONTRACT_NAME    ?? 'chess-v2';
 
-async function readOnly(functionName: string, functionArgs: unknown[]) {
+// ── Internal helper ──────────────────────────────────────────
+
+async function readOnly(
+  functionName: string,
+  functionArgs: Parameters<typeof callReadOnlyFunction>[0]['functionArgs'],
+) {
   const result = await callReadOnlyFunction({
     network: NETWORK,
     contractAddress: CONTRACT_ADDRESS,
     contractName: CONTRACT_NAME,
     functionName,
-    functionArgs: functionArgs as Parameters<typeof callReadOnlyFunction>[0]['functionArgs'],
+    functionArgs,
     senderAddress: CONTRACT_ADDRESS,
   });
   return cvToJSON(result);
