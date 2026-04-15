@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { principalCV, stringAsciiCV, uintCV, serializeCV } from '@stacks/transactions';
+import { stringAsciiCV, uintCV, serializeCV } from '@stacks/transactions';
 import { UserSession } from '@stacks/connect';
 import { NETWORK, CONTRACT_ADDRESS, CONTRACT_NAME } from '@/lib/stacks';
 
