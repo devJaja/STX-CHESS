@@ -1,92 +1,94 @@
-# Stack Chess - Chess on Bitcoin via Stacks
+# ♟ Stack Chess
 
-A decentralized chess game built on Stacks blockchain (Bitcoin Layer 2) with Next.js and Tailwind CSS frontend.
+> Chess on Bitcoin — every move recorded on the [Stacks](https://stacks.co) blockchain (Bitcoin Layer 2).
+
+---
+
+## Overview
+
+Stack Chess is a fully on-chain chess game. Players connect their Leather wallet, create a game against an opponent, and submit moves as Stacks transactions. The smart contract enforces turn order and stores the full move history on-chain.
 
 ## Project Structure
 
 ```
 stack-chess/
 ├── contracts/          # Clarity smart contracts
-│   └── chess.clar     # Main chess game contract
-├── frontend/          # Next.js + Tailwind CSS frontend
-├── tests/             # Contract tests
-├── settings/          # Network configurations
-└── deployments/       # Deployment plans
+│   └── chess.clar      # Main chess game contract
+├── frontend/           # Next.js 14 + Tailwind CSS app
+│   ├── app/            # App router pages & layout
+│   ├── components/     # UI components
+│   └── lib/            # Stacks client, hooks, types
+├── tests/              # Clarinet contract tests
+├── settings/           # Network configs (secrets excluded)
+└── deployments/        # Deployment plans
 ```
 
 ## Smart Contract
 
-The chess contract (`chess.clar`) provides:
+`contracts/chess.clar` provides:
 
-- **create-game**: Create a new chess game between two players
-- **make-move**: Make a move in an active game (enforces turn-based play)
-- **end-game**: End a game and declare a winner
-- **get-game**: Read game state
-- **get-game-count**: Get total number of games created
+| Function | Description |
+|---|---|
+| `create-game(opponent)` | Start a new game — caller is white |
+| `make-move(game-id, move)` | Submit a move, enforces turn order |
+| `end-game(game-id, winner-color)` | Declare winner and close game |
+| `get-game(game-id)` | Read full game state |
+| `get-game-count` | Total games created |
 
-### Contract Features
+## Frontend
 
-- Turn-based gameplay enforcement
-- Game state tracking (active/finished)
-- Move history storage (up to 200 moves)
-- Winner declaration
+Built with **Next.js 14**, **Tailwind CSS**, and **chess.js** for local move validation.
+
+### Setup
+
+```bash
+cd frontend
+cp .env.example .env.local   # configure contract address
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+### Environment Variables
+
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_CONTRACT_ADDRESS` | Deployed contract principal |
+| `NEXT_PUBLIC_CONTRACT_NAME` | Contract name (default: `chess-v2`) |
+| `NEXT_PUBLIC_NETWORK` | `mainnet` or `testnet` |
+
+## Local Development (Simnet)
+
+```bash
+# Validate contract
+clarinet check
+
+# Interactive console
+clarinet console
+
+# Create a game
+(contract-call? .chess create-game 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC)
+
+# Make a move
+(contract-call? .chess make-move u1 "e2e4")
+```
 
 ## Deployment
 
-### Local Development (Simnet)
+### Testnet
 
-The contract is already validated and ready to use on Simnet:
+1. Get testnet STX: https://explorer.hiro.so/sandbox/faucet?chain=testnet
+2. Add mnemonic to `settings/Testnet.toml`
+3. `clarinet deployments apply -p deployments/default.testnet-plan.yaml`
 
-```bash
-# Check contract syntax
-clarinet check
+### Mainnet
 
-# Open interactive console
-clarinet console
-
-# In console, create a game:
-(contract-call? .chess create-game 'ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC)
-
-# Make a move (white's turn):
-(contract-call? .chess make-move u1 "e2e4")
-
-# Get game state:
-(contract-call? .chess get-game u1)
-```
-
-### Deploy to Testnet
-
-1. Get testnet STX from faucet: https://explorer.hiro.so/sandbox/faucet?chain=testnet
-
-2. Update `settings/Testnet.toml` with your mnemonic
-
-3. Deploy:
-```bash
-clarinet deployments apply -p deployments/default.testnet-plan.yaml
-```
-
-### Deploy to Mainnet
-
-1. Update `settings/Mainnet.toml` with your mnemonic
-
-2. Ensure you have enough STX for deployment fees
-
-3. Deploy:
-```bash
-clarinet deployments apply -p deployments/default.mainnet-plan.yaml
-```
-
-## Next Steps
-
-1. ✅ Smart contract created and validated
-2. 🔄 Build Next.js frontend with Tailwind CSS
-3. 🔄 Integrate Stacks.js for wallet connection
-4. 🔄 Implement chess UI and game logic
-5. 🔄 Connect frontend to smart contract
+1. Add mnemonic to `settings/Mainnet.toml`
+2. `clarinet deployments apply -p deployments/default.mainnet-plan.yaml`
 
 ## Testing
 
-Run contract tests:
 ```bash
 npm install
 npm test
@@ -94,12 +96,12 @@ npm test
 
 ## Requirements
 
-- Clarinet 3.x
+- [Clarinet](https://docs.hiro.so/clarinet) 3.x
 - Node.js 18+
-- Stacks wallet (Hiro Wallet or Leather)
+- [Leather Wallet](https://leather.io) browser extension
 
 ## Resources
 
-- [Clarity Documentation](https://docs.stacks.co/clarity)
+- [Clarity Language Docs](https://docs.stacks.co/clarity)
 - [Stacks.js](https://github.com/hirosystems/stacks.js)
-- [Clarinet Documentation](https://docs.hiro.so/clarinet)
+- [Clarinet Docs](https://docs.hiro.so/clarinet)
