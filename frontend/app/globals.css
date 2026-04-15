@@ -1,32 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
+/* ── Design tokens ─────────────────────────────────────────── */
 :root {
   --background: #f8f9fb;
   --foreground: #0f1117;
-  --surface: #ffffff;
-  --surface-2: #f1f3f7;
-  --border: #e2e6ed;
-  --muted: #6b7280;
-  --accent: #6366f1;
+  --surface:    #ffffff;
+  --surface-2:  #f1f3f7;
+  --border:     #e2e6ed;
+  --muted:      #6b7280;
+  --accent:     #6366f1;
   --accent-hover: #4f46e5;
 }
 
 .dark {
   --background: #0d0f14;
   --foreground: #e8eaf0;
-  --surface: #161a23;
-  --surface-2: #1e2330;
-  --border: #2a2f3d;
-  --muted: #8b92a5;
-  --accent: #818cf8;
+  --surface:    #161a23;
+  --surface-2:  #1e2330;
+  --border:     #2a2f3d;
+  --muted:      #8b92a5;
+  --accent:     #818cf8;
   --accent-hover: #6366f1;
 }
 
-* {
+/* ── Base ───────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -34,14 +38,15 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  transition: background-color 0.2s, color 0.2s;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s, color 0.2s;
 }
 
+/* ── Utilities ──────────────────────────────────────────────── */
 @layer utilities {
-  .text-balance { text-wrap: balance; }
-  .surface { background: var(--surface); border: 1px solid var(--border); }
-  .surface-2 { background: var(--surface-2); }
-  .text-muted { color: var(--muted); }
-  .text-accent { color: var(--accent); }
+  .text-balance  { text-wrap: balance; }
+  .text-muted    { color: var(--muted); }
+  .text-accent   { color: var(--accent); }
+  .surface       { background: var(--surface);   border: 1px solid var(--border); }
+  .surface-2     { background: var(--surface-2); }
 }
