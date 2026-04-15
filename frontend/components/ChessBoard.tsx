@@ -10,9 +10,9 @@ interface ChessBoardProps {
   onMove: (move: string) => void;
 }
 
-const PIECES: { [key: string]: string } = {
-  'p': '♟', 'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚',
-  'P': '♙', 'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔'
+const PIECE_MAP: Record<string, string> = {
+  P: '♙', R: '♖', N: '♘', B: '♗', Q: '♕', K: '♔',
+  p: '♟', r: '♜', n: '♞', b: '♝', q: '♛', k: '♚',
 };
 
 export default function ChessBoard({ gameId, userAddress, onMove }: ChessBoardProps) {
@@ -21,26 +21,22 @@ export default function ChessBoard({ gameId, userAddress, onMove }: ChessBoardPr
   const [legalMoves, setLegalMoves] = useState<string[]>([]);
 
   useEffect(() => {
-    if (gameId) {
-      getGame(gameId).then(data => {
-        if (data?.value) {
-          const moves = data.value.moves?.value || [];
-          const newGame = new Chess();
-          moves.forEach((m: any) => {
-            const moveStr = m.value;
-            newGame.move({ from: moveStr.slice(0, 2), to: moveStr.slice(2, 4) });
-          });
-          setGame(newGame);
-        }
-      });
-    }
+    if (!gameId) return;
+    getGame(gameId).then(data => {
+      if (data?.value) {
+        const moves = data.value.moves?.value || [];
+        const newGame = new Chess();
+        moves.forEach((m: any) => {
+          const s = m.value;
+          newGame.move({ from: s.slice(0, 2), to: s.slice(2, 4) });
+        });
+        setGame(newGame);
+      }
+    });
   }, [gameId]);
-
-  const board = game.board();
 
   const handleSquareClick = (row: number, col: number) => {
     const square = String.fromCharCode(97 + col) + (8 - row);
-    
     if (selectedSquare) {
       try {
         const move = game.move({ from: selectedSquare, to: square });
@@ -49,75 +45,113 @@ export default function ChessBoard({ gameId, userAddress, onMove }: ChessBoardPr
           setGame(new Chess(game.fen()));
           setSelectedSquare(null);
           setLegalMoves([]);
+          return;
         }
-      } catch (e) {
-        setSelectedSquare(square);
-        const moves = game.moves({ square, verbose: true });
-        setLegalMoves(moves.map(m => m.to));
-      }
-    } else {
-      setSelectedSquare(square);
-      const moves = game.moves({ square, verbose: true });
-      setLegalMoves(moves.map(m => m.to));
+      } catch {}
     }
+    setSelectedSquare(square);
+    setLegalMoves(game.moves({ square, verbose: true }).map((m: any) => m.to));
   };
 
+  const board = game.board();
+  const turnLabel = game.turn() === 'w' ? 'White' : 'Black';
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-2xl transition-colors duration-300">
-      <div className="flex justify-between items-center mb-4">
-        <div className="text-gray-900 dark:text-white">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Turn</p>
-          <p className="font-bold">{game.turn() === 'w' ? 'White' : 'Black'}</p>
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+    >
+      {/* Board header */}
+      <div
+        className="flex items-center justify-between px-5 py-3 border-b text-sm"
+        style={{ borderColor: 'var(--border)' }}
+      >
+        <div className="flex items-center gap-2">
+          <span
+            className="w-2.5 h-2.5 rounded-full inline-block"
+            style={{ background: game.turn() === 'w' ? '#f8f9fb' : '#1e2330', border: '1.5px solid var(--border)' }}
+          />
+          <span style={{ color: 'var(--muted)' }}>
+            {game.isGameOver() ? 'Game over' : `${turnLabel}'s turn`}
+          </span>
         </div>
-        {game.isGameOver() && (
-          <div className="bg-red-600 text-white px-4 py-2 rounded-lg">
-            {game.isCheckmate() ? 'Checkmate!' : game.isDraw() ? 'Draw!' : 'Game Over'}
+        <div className="flex gap-2">
+          {game.isCheck() && !game.isGameOver() && (
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
+              Check
+            </span>
+          )}
+          {game.isGameOver() && (
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">
+              {game.isCheckmate() ? 'Checkmate' : 'Draw'}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Board */}
+      <div className="p-4">
+        {/* Rank labels + board */}
+        <div className="flex gap-1">
+          {/* Rank numbers */}
+          <div className="flex flex-col justify-around pr-1">
+            {[8,7,6,5,4,3,2,1].map(n => (
+              <span key={n} className="text-xs w-3 text-center leading-none" style={{ color: 'var(--muted)' }}>{n}</span>
+            ))}
           </div>
-        )}
-      </div>
 
-      <div className="grid grid-cols-8 gap-0 w-full aspect-square max-w-2xl mx-auto border-4 border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
-        {board.map((row, rowIndex) => 
-          row.map((square, colIndex) => {
-            const squareName = String.fromCharCode(97 + colIndex) + (8 - rowIndex);
-            const isLight = (rowIndex + colIndex) % 2 === 0;
-            const isSelected = selectedSquare === squareName;
-            const isLegalMove = legalMoves.includes(squareName);
-            
-            return (
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                onClick={() => handleSquareClick(rowIndex, colIndex)}
-                className={`
-                  flex items-center justify-center cursor-pointer text-5xl
-                  ${isLight ? 'bg-amber-100 dark:bg-amber-200' : 'bg-amber-600 dark:bg-amber-700'}
-                  ${isSelected ? 'ring-4 ring-blue-500' : ''}
-                  ${isLegalMove ? 'ring-4 ring-green-400' : ''}
-                  hover:opacity-80 transition
-                `}
-              >
-                {square && PIECES[square.type === 'p' && square.color === 'w' ? 'P' : 
-                                  square.type === 'p' && square.color === 'b' ? 'p' :
-                                  square.type === 'r' && square.color === 'w' ? 'R' :
-                                  square.type === 'r' && square.color === 'b' ? 'r' :
-                                  square.type === 'n' && square.color === 'w' ? 'N' :
-                                  square.type === 'n' && square.color === 'b' ? 'n' :
-                                  square.type === 'b' && square.color === 'w' ? 'B' :
-                                  square.type === 'b' && square.color === 'b' ? 'b' :
-                                  square.type === 'q' && square.color === 'w' ? 'Q' :
-                                  square.type === 'q' && square.color === 'b' ? 'q' :
-                                  square.type === 'k' && square.color === 'w' ? 'K' : 'k']}
-              </div>
-            );
-          })
-        )}
-      </div>
+          <div className="flex-1">
+            <div className="grid grid-cols-8 w-full aspect-square rounded-lg overflow-hidden" style={{ border: '2px solid var(--border)' }}>
+              {board.map((row, rowIndex) =>
+                row.map((sq, colIndex) => {
+                  const squareName = String.fromCharCode(97 + colIndex) + (8 - rowIndex);
+                  const isLight = (rowIndex + colIndex) % 2 === 0;
+                  const isSelected = selectedSquare === squareName;
+                  const isLegal = legalMoves.includes(squareName);
+                  const pieceKey = sq ? (sq.color === 'w' ? sq.type.toUpperCase() : sq.type) : null;
 
-      {game.isCheck() && !game.isGameOver() && (
-        <div className="mt-4 bg-yellow-600 text-white text-center py-2 rounded-lg font-bold">
-          Check!
+                  return (
+                    <div
+                      key={`${rowIndex}-${colIndex}`}
+                      onClick={() => handleSquareClick(rowIndex, colIndex)}
+                      className="flex items-center justify-center cursor-pointer select-none relative transition-colors"
+                      style={{
+                        background: isSelected
+                          ? 'rgba(99,102,241,0.45)'
+                          : isLight ? '#f0d9b5' : '#b58863',
+                        fontSize: 'clamp(16px, 4vw, 38px)',
+                        lineHeight: 1,
+                      }}
+                    >
+                      {isLegal && (
+                        <span
+                          className="absolute rounded-full pointer-events-none"
+                          style={{
+                            width: sq ? '88%' : '30%',
+                            height: sq ? '88%' : '30%',
+                            background: sq ? 'rgba(99,102,241,0.25)' : 'rgba(99,102,241,0.45)',
+                            border: sq ? '3px solid rgba(99,102,241,0.6)' : 'none',
+                          }}
+                        />
+                      )}
+                      {pieceKey && (
+                        <span className="relative z-10 drop-shadow-sm">{PIECE_MAP[pieceKey]}</span>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* File labels */}
+            <div className="grid grid-cols-8 mt-1">
+              {['a','b','c','d','e','f','g','h'].map(f => (
+                <span key={f} className="text-xs text-center" style={{ color: 'var(--muted)' }}>{f}</span>
+              ))}
+            </div>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

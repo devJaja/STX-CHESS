@@ -19,26 +19,54 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-100 via-blue-50 to-gray-100 dark:from-gray-900 dark:via-purple-900 dark:to-gray-900 p-8 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto">
-        <header className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-2">♔ Stack Chess</h1>
-          <p className="text-gray-700 dark:text-gray-300">Chess on Bitcoin via Stacks Blockchain</p>
-        </header>
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
+      {/* Navbar */}
+      <nav
+        className="sticky top-0 z-50 border-b"
+        style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+      >
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">♟</span>
+            <div>
+              <span className="font-semibold text-base tracking-tight" style={{ color: 'var(--foreground)' }}>
+                Stack Chess
+              </span>
+              <span
+                className="ml-2 text-xs font-medium px-2 py-0.5 rounded-full"
+                style={{ background: 'var(--surface-2)', color: 'var(--muted)', border: '1px solid var(--border)' }}
+              >
+                Bitcoin Layer 2
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <WalletConnect onConnect={handleConnect} />
+          </div>
+        </div>
+      </nav>
 
-        <div className="flex justify-between items-center mb-6">
-          <ThemeToggle />
-          <WalletConnect onConnect={handleConnect} />
+      {/* Main */}
+      <main className="max-w-7xl mx-auto px-6 py-10">
+        {/* Hero */}
+        <div className="mb-10">
+          <h1 className="text-3xl font-bold tracking-tight mb-1" style={{ color: 'var(--foreground)' }}>
+            Play Chess on Bitcoin
+          </h1>
+          <p className="text-sm" style={{ color: 'var(--muted)' }}>
+            Every move is recorded on the Stacks blockchain — trustless, permanent, verifiable.
+          </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        {/* Content grid */}
+        <div className="grid lg:grid-cols-3 gap-6 items-start">
           <div className="lg:col-span-2">
             <ChessBoard gameId={gameId} userAddress={userAddress} onMove={setPendingMove} />
           </div>
-          
-          <div className="space-y-6">
-            <GameControls 
-              gameId={gameId} 
+          <div>
+            <GameControls
+              gameId={gameId}
               setGameId={setGameId}
               userAddress={userAddress}
               userSession={userSession}
@@ -47,7 +75,23 @@ export default function Home() {
             />
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t mt-16 py-6" style={{ borderColor: 'var(--border)' }}>
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between text-xs" style={{ color: 'var(--muted)' }}>
+          <span>Stack Chess — built on Stacks / Bitcoin</span>
+          <a
+            href="https://docs.stacks.co"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+            style={{ color: 'var(--accent)' }}
+          >
+            Stacks Docs ↗
+          </a>
+        </div>
+      </footer>
+    </div>
   );
 }

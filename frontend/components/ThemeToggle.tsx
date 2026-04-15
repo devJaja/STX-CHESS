@@ -8,10 +8,11 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="bg-gray-700 dark:bg-gray-800 hover:bg-gray-600 dark:hover:bg-gray-700 text-white p-3 rounded-lg transition shadow-lg"
       aria-label="Toggle theme"
+      className="w-9 h-9 flex items-center justify-center rounded-lg text-base transition-opacity hover:opacity-70"
+      style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
     >
-      {theme === 'dark' ? '☀️' : '🌙'}
+      {theme === 'dark' ? '☀︎' : '☽'}
     </button>
   );
 }
