@@ -1,50 +1,53 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AppConfig, UserSession } from '@stacks/connect';
 
 interface WalletConnectProps {
   onConnect: (address: string, session: UserSession) => void;
 }
 
-export default function WalletConnect({ onConnect }: WalletConnectProps) {
-  const [address, setAddress] = useState<string>('');
-  const [userSession] = useState(() => new UserSession({ appConfig: new AppConfig(['store_write', 'publish_data']) }));
+const appConfig  = new AppConfig(['store_write', 'publish_data']);
+const userSession = new UserSession({ appConfig });
 
+export default function WalletConnect({ onConnect }: WalletConnectProps) {
+  const [address, setAddress] = useState('');
+
+  // Restore session on mount if already signed in via legacy flow
   useEffect(() => {
     if (userSession.isUserSignedIn()) {
       const addr = userSession.loadUserData().profile.stxAddress.mainnet;
       setAddress(addr);
       onConnect(addr, userSession);
     }
-  }, [userSession, onConnect]);
+  }, [onConnect]);
 
-  const connectWallet = async () => {
+  const connect = useCallback(async () => {
     try {
-      const response = await (window as any).LeatherProvider?.request('getAddresses');
-      const stxAddress = response?.result?.addresses?.find((a: any) => a.type === 'stx')?.address;
-      if (stxAddress) {
-        setAddress(stxAddress);
-        onConnect(stxAddress, userSession);
+      const res = await (window as any).LeatherProvider?.request('getAddresses');
+      const addr = res?.result?.addresses?.find((a: any) => a.type === 'stx')?.address;
+      if (addr) {
+        setAddress(addr);
+        onConnect(addr, userSession);
       }
-    } catch (error) {
-      console.error('Failed to connect wallet:', error);
+    } catch (err) {
+      console.error('[WalletConnect] connect failed:', err);
     }
-  };
+  }, [onConnect]);
 
-  const disconnect = () => {
+  const disconnect = useCallback(() => {
     setAddress('');
     onConnect('', userSession);
-  };
+  }, [onConnect]);
 
   if (!address) {
     return (
       <button
-        onClick={connectWallet}
+        onClick={connect}
         className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg transition-opacity hover:opacity-80"
         style={{ background: 'var(--accent)', color: '#fff' }}
       >
-        <span>Connect Wallet</span>
+        Connect Wallet
       </button>
     );
   }
@@ -55,9 +58,7 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
         className="flex items-center gap-2 text-sm px-3 py-2 rounded-lg"
         style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
       >
-        <span
-          className="w-2 h-2 rounded-full bg-green-400 inline-block"
-        />
+        <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
         <span className="font-mono">{address.slice(0, 6)}…{address.slice(-4)}</span>
       </div>
       <button
