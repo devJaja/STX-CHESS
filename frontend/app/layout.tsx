@@ -3,17 +3,13 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "Stack Chess - Chess on Bitcoin",
-  description: "Decentralized chess game on Stacks blockchain",
+  title: "Stack Chess — Chess on Bitcoin",
+  description: "Decentralized chess on the Stacks blockchain",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
