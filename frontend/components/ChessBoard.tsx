@@ -40,7 +40,7 @@ function pieceKey(sq: { type: string; color: string }): string {
 
 // ── Component ────────────────────────────────────────────────
 
-export default function ChessBoard({ gameId, userAddress, onMove }: ChessBoardProps) {
+export default function ChessBoard({ gameId, onMove }: ChessBoardProps) {
   const [game, setGame]               = useState(() => new Chess());
   const [selected, setSelected]       = useState<Square | null>(null);
   const [legalTargets, setLegalTargets] = useState<Square[]>([]);
@@ -51,10 +51,10 @@ export default function ChessBoard({ gameId, userAddress, onMove }: ChessBoardPr
     if (!gameId) return;
     getGame(gameId).then(data => {
       if (!data?.value) return;
-      const moves: any[] = data.value.moves?.value ?? [];
+      const moves: { value: string }[] = data.value.moves?.value ?? [];
       const g = new Chess();
       moves.forEach(m => {
-        const s = m.value as string;
+        const s = m.value;
         g.move({ from: s.slice(0, 2) as Square, to: s.slice(2, 4) as Square });
       });
       setGame(g);

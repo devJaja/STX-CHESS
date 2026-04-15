@@ -24,8 +24,8 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
 
   const connect = useCallback(async () => {
     try {
-      const res = await (window as any).LeatherProvider?.request('getAddresses');
-      const addr = res?.result?.addresses?.find((a: any) => a.type === 'stx')?.address;
+      const res = await (window as Window & { LeatherProvider?: { request: (method: string) => Promise<{ result?: { addresses?: { type: string; address: string }[] } }> } }).LeatherProvider?.request('getAddresses');
+      const addr = res?.result?.addresses?.find((a: { type: string; address: string }) => a.type === 'stx')?.address;
       if (addr) {
         setAddress(addr);
         onConnect(addr, userSession);

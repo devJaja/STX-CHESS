@@ -9,8 +9,14 @@ interface CallContractOptions {
  * Thin wrapper around the Leather wallet provider.
  * Returns null if the extension is not installed.
  */
+interface LeatherResponse {
+  result?: { txid?: string; addresses?: { type: string; address: string }[] };
+}
+
 export function useLeather() {
-  const provider = typeof window !== 'undefined' ? (window as any).LeatherProvider : null;
+  const provider = typeof window !== 'undefined'
+    ? (window as Window & { LeatherProvider?: { request: (method: string, params?: unknown) => Promise<LeatherResponse> } }).LeatherProvider
+    : null;
 
   async function callContract({ functionName, functionArgs }: CallContractOptions) {
     if (!provider) throw new Error('Leather wallet not detected. Please install the extension.');

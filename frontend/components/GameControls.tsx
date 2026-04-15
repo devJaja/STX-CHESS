@@ -71,9 +71,12 @@ export default function GameControls({
   const [loading, setLoading] = useState(false);
   const { callContract } = useLeather();
 
-  const handleError = (err: any) => {
-    if (err?.error?.code === 4001) return; // user rejected
-    const msg = err?.error?.message ?? err?.message ?? 'Unknown error';
+type AppError = { error?: { code?: number; message?: string }; message?: string };
+
+  const handleError = (err: unknown) => {
+    const e = err as AppError;
+    if (e?.error?.code === 4001) return;
+    const msg = e?.error?.message ?? e?.message ?? 'Unknown error';
     alert(`Error: ${msg}`);
   };
 
