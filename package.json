@@ -4,11 +4,12 @@
   "description": "Chess game on Stacks blockchain",
   "scripts": {
     "test": "vitest run",
-    "check": "clarinet check",
-    "console": "clarinet console"
+    "check": "clarinet check"
   },
   "devDependencies": {
     "@hirosystems/clarinet-sdk": "^2.0.0",
+    "@stacks/transactions": "^6.16.1",
+    "@types/node": "^20",
     "vitest": "^1.0.0"
   }
 }
