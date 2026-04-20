@@ -67,11 +67,11 @@ export default function ChessBoard({ gameId, onMove }: ChessBoardProps) {
 
     if (selected) {
       try {
-        const result = game.move({ from: selected, to: sq });
+        const copy = new Chess(game.fen());
+        const result = copy.move({ from: selected, to: sq });
         if (result) {
-          const updated = new Chess(game.fen());
-          setGame(updated);
-          setMoveHistory(updated.history());
+          setGame(copy);
+          setMoveHistory(copy.history());
           setSelected(null);
           setLegalTargets([]);
           onMove(selected + sq);
