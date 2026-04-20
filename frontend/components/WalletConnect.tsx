@@ -25,8 +25,13 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
   }, [onConnect]);
 
   const connect = useCallback(async () => {
+    const leather = (window as Window & { LeatherProvider?: { request: (method: string) => Promise<{ result?: { addresses?: { type: string; address: string }[] } }> } }).LeatherProvider;
+    if (!leather) {
+      alert('Leather wallet not detected. Please install the extension from leather.io');
+      return;
+    }
     try {
-      const res = await (window as Window & { LeatherProvider?: { request: (method: string) => Promise<{ result?: { addresses?: { type: string; address: string }[] } }> } }).LeatherProvider?.request('getAddresses');
+      const res = await leather.request('getAddresses');
       const addr = res?.result?.addresses?.find((a: { type: string; address: string }) => a.type === 'stx')?.address;
       if (addr) {
         setAddress(addr);
