@@ -48,7 +48,13 @@ export default function ChessBoard({ gameId, onMove }: ChessBoardProps) {
 
   // Sync board from chain when gameId changes
   useEffect(() => {
-    if (!gameId) return;
+    if (!gameId) {
+      setGame(new Chess());
+      setMoveHistory([]);
+      setSelected(null);
+      setLegalTargets([]);
+      return;
+    }
     getGame(gameId).then(data => {
       if (!data?.value) return;
       const moves: { value: string }[] = data.value.moves?.value ?? [];
