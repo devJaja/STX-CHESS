@@ -5,7 +5,7 @@ import { callReadOnlyFunction, cvToJSON, uintCV } from '@stacks/transactions';
 const isMainnet = process.env.NEXT_PUBLIC_NETWORK !== 'testnet';
 
 export const NETWORK          = isMainnet ? new StacksMainnet() : new StacksTestnet();
-export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? 'SP19PS42C7R7BR4VCX2YN8KPHXSB0ZC19K6PFEKTC';
+export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? '';
 export const CONTRACT_NAME    = process.env.NEXT_PUBLIC_CONTRACT_NAME    ?? 'chess-v2';
 
 // ── Internal helper ──────────────────────────────────────────
