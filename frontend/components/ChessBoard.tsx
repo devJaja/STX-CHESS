@@ -76,6 +76,15 @@ export default function ChessBoard({ gameId, onMove }: ChessBoardProps) {
   // Periodic sync while game is active
   useGameSync(gameId, applyChainData);
 
+  // Escape key deselects current square
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setSelected(null); setLegalTargets([]); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   const handleSquareClick = useCallback((row: number, col: number) => {
     const sq = toSquareName(row, col);
 
