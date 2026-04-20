@@ -122,6 +122,13 @@ export default function ChessBoard({ gameId, onMove }: ChessBoardProps) {
       className="rounded-2xl overflow-hidden"
       style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
     >
+      {/* Screen reader live region */}
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {isOver
+          ? game.isCheckmate() ? `Checkmate. ${turnLabel === 'White' ? 'Black' : 'White'} wins.` : 'Draw.'
+          : `${turnLabel}'s turn.${game.isCheck() ? ' Check.' : ''}`
+        }
+      </p>
       {/* ── Status bar ── */}
       <div
         className="flex items-center justify-between px-5 py-3 border-b text-sm"
