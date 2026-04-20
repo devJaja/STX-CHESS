@@ -57,6 +57,31 @@ function Btn({
   );
 }
 
+function JoinGame({ onJoin }: { onJoin: (id: number) => void }) {
+  const [value, setValue] = useState('');
+  return (
+    <div className="flex gap-2">
+      <input
+        type="number"
+        min={1}
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        placeholder="Game ID"
+        className="flex-1 text-sm px-3 py-2.5 rounded-lg outline-none transition-colors"
+        style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
+      />
+      <button
+        onClick={() => { const id = parseInt(value); if (id > 0) onJoin(id); }}
+        disabled={!value || parseInt(value) < 1}
+        className="px-4 py-2.5 rounded-lg text-sm font-medium transition-opacity disabled:opacity-40"
+        style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
+      >
+        Join
+      </button>
+    </div>
+  );
+}
+
 // ── Main Component ───────────────────────────────────────────
 
 type AppError = { error?: { code?: number; message?: string }; message?: string };
@@ -165,23 +190,30 @@ export default function GameControls({
 
       {/* New game form */}
       {!gameId ? (
-        <div>
-          <Label>New Game</Label>
-          <input
-            type="text"
-            value={opponentAddress}
-            onChange={e => setOpponentAddress(e.target.value)}
-            placeholder="Opponent STX address"
-            className="w-full text-sm px-3 py-2.5 rounded-lg outline-none mb-3 transition-colors"
-            style={{
-              background: 'var(--surface-2)',
-              border: '1px solid var(--border)',
-              color: 'var(--foreground)',
-            }}
-          />
-          <Btn onClick={createGame} disabled={loading || !userAddress}>
-            {loading ? 'Creating…' : 'Create Game'}
-          </Btn>
+        <div className="space-y-4">
+          <div>
+            <Label>New Game</Label>
+            <input
+              type="text"
+              value={opponentAddress}
+              onChange={e => setOpponentAddress(e.target.value)}
+              placeholder="Opponent STX address"
+              className="w-full text-sm px-3 py-2.5 rounded-lg outline-none mb-3 transition-colors"
+              style={{
+                background: 'var(--surface-2)',
+                border: '1px solid var(--border)',
+                color: 'var(--foreground)',
+              }}
+            />
+            <Btn onClick={createGame} disabled={loading || !userAddress}>
+              {loading ? 'Creating…' : 'Create Game'}
+            </Btn>
+          </div>
+
+          <div>
+            <Label>Join Existing Game</Label>
+            <JoinGame onJoin={setGameId} />
+          </div>
         </div>
       ) : (
         <>
