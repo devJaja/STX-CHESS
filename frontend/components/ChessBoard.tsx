@@ -74,13 +74,17 @@ export default function ChessBoard({ gameId, onMove }: ChessBoardProps) {
     if (selected) {
       try {
         const copy = new Chess(game.fen());
-        const result = copy.move({ from: selected, to: sq });
+        // Detect pawn promotion: pawn moving to rank 1 or 8
+        const piece = copy.get(selected);
+        const toRank = sq[1];
+        const isPromotion = piece?.type === 'p' && (toRank === '8' || toRank === '1');
+        const result = copy.move({ from: selected, to: sq, promotion: isPromotion ? 'q' : undefined });
         if (result) {
           setGame(copy);
           setMoveHistory(copy.history());
           setSelected(null);
           setLegalTargets([]);
-          onMove(selected + sq);
+          onMove(selected + sq + (isPromotion ? 'q' : ''));
           return;
         }
       } catch { /* illegal move — fall through to re-select */ }
