@@ -7,6 +7,34 @@ All notable changes to Stack Chess are documented here.
 ## [Unreleased]
 
 ### Added
+- `useGameSync` hook: polls chain state every 15s to keep board in sync with opponent moves
+- `JoinGame` sub-component: load any existing game by ID without creating a new one
+- Testnet deployment plan (`deployments/default.testnet-plan.yaml`)
+- GitHub Actions CI workflow: contract tests + frontend lint/typecheck/build
+- Clarinet/Vitest contract test suite (6 tests covering all core contract paths)
+- `end-game` UI: "Declare White Wins" / "Declare Black Wins" buttons in GameControls
+- StatusBar now shows total on-chain game count from `get-game-count`
+- Escape key deselects active square on the chess board
+- Auto-promote pawns to queen on promotion moves
+
+### Changed
+- `CONTRACT_ADDRESS` fallback changed from hardcoded mainnet principal to empty string — misconfigured deployments now fail loudly
+- `handleError` moved outside component scope (no state dependencies)
+- `endGame` signature narrowed to `'white' | 'black'` — removed broken draw path (contract has no draw concept)
+- StatusBar indicator is green for mainnet, yellow for testnet
+- `WalletConnect` reads `stxAddress.testnet` when `NEXT_PUBLIC_NETWORK=testnet`
+- `ChessBoard` moves on a `Chess` copy before setting state (prevents partial mutation on error)
+- `ChessBoard` resets fully when `gameId` is cleared
+- `LeatherResponse` type extended with `value` field
+
+### Fixed
+- `StatusBar` no longer crashes when `CONTRACT_ADDRESS` is empty
+- Wallet session restore always uses the correct network address
+- Pawn promotion moves now encoded correctly in on-chain move string
+
+---
+
+### Added
 - `StatusBar` component showing live network and contract info
 - `useLeather` hook centralising all Leather wallet calls
 - Shared `GameState` types in `lib/types.ts`
