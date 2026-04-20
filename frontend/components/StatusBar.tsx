@@ -1,10 +1,19 @@
 'use client';
 
-import { CONTRACT_ADDRESS, CONTRACT_NAME, NETWORK } from '@/lib/stacks';
+import { useEffect, useState } from 'react';
+import { CONTRACT_ADDRESS, CONTRACT_NAME, NETWORK, getGameCount } from '@/lib/stacks';
 
 export default function StatusBar() {
   const isMainnet = NETWORK.isMainnet();
   const network = isMainnet ? 'Mainnet' : 'Testnet';
+  const [gameCount, setGameCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!CONTRACT_ADDRESS) return;
+    getGameCount().then(res => {
+      if (res?.value != null) setGameCount(Number(res.value));
+    });
+  }, []);
 
   return (
     <div
@@ -25,6 +34,12 @@ export default function StatusBar() {
           : <span style={{ color: '#f87171' }}>⚠ Set NEXT_PUBLIC_CONTRACT_ADDRESS</span>
         }
       </span>
+      {gameCount !== null && (
+        <>
+          <span className="opacity-30">|</span>
+          <span>{gameCount} game{gameCount !== 1 ? 's' : ''}</span>
+        </>
+      )}
     </div>
   );
 }
