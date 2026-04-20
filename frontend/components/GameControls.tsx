@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { UserSession } from '@stacks/connect';
 import { useLeather } from '@/lib/useLeather';
-import { CONTRACT_ADDRESS, CONTRACT_NAME } from '@/lib/stacks';
+import { CONTRACT_ADDRESS, CONTRACT_NAME, getGameCount } from '@/lib/stacks';
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -59,6 +59,15 @@ function Btn({
 
 // ── Main Component ───────────────────────────────────────────
 
+type AppError = { error?: { code?: number; message?: string }; message?: string };
+
+function handleError(err: unknown) {
+  const e = err as AppError;
+  if (e?.error?.code === 4001) return;
+  const msg = e?.error?.message ?? e?.message ?? 'Unknown error';
+  alert(`Error: ${msg}`);
+}
+
 export default function GameControls({
   gameId,
   setGameId,
@@ -71,15 +80,6 @@ export default function GameControls({
   const [loading, setLoading] = useState(false);
   const { callContract } = useLeather();
 
-type AppError = { error?: { code?: number; message?: string }; message?: string };
-
-  const handleError = (err: unknown) => {
-    const e = err as AppError;
-    if (e?.error?.code === 4001) return;
-    const msg = e?.error?.message ?? e?.message ?? 'Unknown error';
-    alert(`Error: ${msg}`);
-  };
-
   const createGame = useCallback(async () => {
     if (!userAddress || !userSession) return alert('Connect your wallet first');
     if (!opponentAddress.trim()) return alert('Enter opponent address');
@@ -91,8 +91,12 @@ type AppError = { error?: { code?: number; message?: string }; message?: string 
         functionArgs: [`'${opponentAddress.trim()}`],
       });
       if (res?.result?.txid) {
-        alert(`Game created!\nTX: ${res.result.txid}`);
-        setGameId(1); // TODO: parse actual game-id once TX confirms
+        // Leather only returns txid — poll game-count after a short delay for the confirmed ID
+        alert(`Game created!\nTX: ${res.result.txid}\nWaiting for confirmation…`);
+        await new Promise(r => setTimeout(r, 5000));
+        const countRes = await getGameCount();
+        const id = countRes?.value ? Number(countRes.value) : 1;
+        setGameId(id);
       }
     } catch (err) {
       handleError(err);
@@ -120,6 +124,27 @@ type AppError = { error?: { code?: number; message?: string }; message?: string 
       setLoading(false);
     }
   }, [userAddress, userSession, gameId, pendingMove, callContract, setPendingMove]);
+
+  const endGame = useCallback(async (winnerColor: 'white' | 'black') => {
+    if (!userAddress || !userSession || !gameId) return;
+    if (!confirm(`Declare ${winnerColor} as winner?`)) return;
+
+    setLoading(true);
+    try {
+      const res = await callContract({
+        functionName: 'end-game',
+        functionArgs: [`u${gameId}`, `"${winnerColor}"`],
+      });
+      if (res?.result?.txid) {
+        alert(`Game ended!\nTX: ${res.result.txid}`);
+        setGameId(null);
+      }
+    } catch (err) {
+      handleError(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [userAddress, userSession, gameId, callContract, setGameId]);
 
   return (
     <div
@@ -180,6 +205,12 @@ type AppError = { error?: { code?: number; message?: string }; message?: string 
             <div className="space-y-2">
               <Btn onClick={submitMove} disabled={loading || !pendingMove}>
                 {loading ? 'Submitting…' : 'Submit Move On-Chain'}
+              </Btn>
+              <Btn onClick={() => endGame('white')} disabled={loading} variant="ghost">
+                Declare White Wins
+              </Btn>
+              <Btn onClick={() => endGame('black')} disabled={loading} variant="ghost">
+                Declare Black Wins
               </Btn>
               <Btn onClick={() => setGameId(null)} variant="danger">
                 Leave Game
