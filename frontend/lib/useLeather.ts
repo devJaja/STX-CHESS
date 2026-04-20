@@ -10,7 +10,7 @@ interface CallContractOptions {
  * Returns null if the extension is not installed.
  */
 interface LeatherResponse {
-  result?: { txid?: string; addresses?: { type: string; address: string }[] };
+  result?: { txid?: string; value?: number; addresses?: { type: string; address: string }[] };
 }
 
 export function useLeather() {
