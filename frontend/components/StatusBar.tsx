@@ -3,7 +3,8 @@
 import { CONTRACT_ADDRESS, CONTRACT_NAME, NETWORK } from '@/lib/stacks';
 
 export default function StatusBar() {
-  const network = NETWORK.isMainnet() ? 'Mainnet' : 'Testnet';
+  const isMainnet = NETWORK.isMainnet();
+  const network = isMainnet ? 'Mainnet' : 'Testnet';
 
   return (
     <div
@@ -11,14 +12,17 @@ export default function StatusBar() {
       style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--muted)' }}
     >
       <span className="flex items-center gap-1.5">
-        <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
+        <span
+          className="w-1.5 h-1.5 rounded-full shrink-0"
+          style={{ background: isMainnet ? '#4ade80' : '#facc15' }}
+        />
         {network}
       </span>
       <span className="opacity-30">|</span>
       <span className="truncate">
         {CONTRACT_ADDRESS
           ? `${CONTRACT_ADDRESS.slice(0, 8)}…${CONTRACT_ADDRESS.slice(-4)}.${CONTRACT_NAME}`
-          : <span style={{ color: 'var(--accent)' }}>Set NEXT_PUBLIC_CONTRACT_ADDRESS</span>
+          : <span style={{ color: '#f87171' }}>⚠ Set NEXT_PUBLIC_CONTRACT_ADDRESS</span>
         }
       </span>
     </div>
