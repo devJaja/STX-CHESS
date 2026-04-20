@@ -16,7 +16,10 @@ export default function StatusBar() {
       </span>
       <span className="opacity-30">|</span>
       <span className="truncate">
-        {CONTRACT_ADDRESS.slice(0, 8)}…{CONTRACT_ADDRESS.slice(-4)}.{CONTRACT_NAME}
+        {CONTRACT_ADDRESS
+          ? `${CONTRACT_ADDRESS.slice(0, 8)}…${CONTRACT_ADDRESS.slice(-4)}.${CONTRACT_NAME}`
+          : <span style={{ color: 'var(--accent)' }}>Set NEXT_PUBLIC_CONTRACT_ADDRESS</span>
+        }
       </span>
     </div>
   );
