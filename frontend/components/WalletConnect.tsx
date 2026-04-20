@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { AppConfig, UserSession } from '@stacks/connect';
+import { NETWORK } from '@/lib/stacks';
 
 interface WalletConnectProps {
   onConnect: (address: string, session: UserSession) => void;
@@ -16,7 +17,8 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
   // Restore session on mount if already signed in via legacy flow
   useEffect(() => {
     if (userSession.isUserSignedIn()) {
-      const addr = userSession.loadUserData().profile.stxAddress.mainnet;
+      const stxAddresses = userSession.loadUserData().profile.stxAddress;
+      const addr = NETWORK.isMainnet() ? stxAddresses.mainnet : stxAddresses.testnet;
       setAddress(addr);
       onConnect(addr, userSession);
     }
