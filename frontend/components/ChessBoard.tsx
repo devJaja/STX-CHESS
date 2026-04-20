@@ -193,9 +193,12 @@ export default function ChessBoard({ gameId, onMove }: ChessBoardProps) {
                     <div
                       key={name}
                       onClick={() => handleSquareClick(ri, ci)}
+                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleSquareClick(ri, ci); }}
                       role="button"
+                      tabIndex={0}
                       aria-label={`Square ${name}${sq ? ` — ${sq.color === 'w' ? 'white' : 'black'} ${sq.type}` : ''}`}
-                      className="flex items-center justify-center cursor-pointer select-none relative"
+                      aria-pressed={selected === name}
+                      className="flex items-center justify-center cursor-pointer select-none relative focus:outline-none focus:ring-2 focus:ring-indigo-400"
                       style={{
                         background: isSel ? SEL_BG : isLight ? LIGHT_SQ : DARK_SQ,
                         fontSize: 'clamp(14px, 3.5vw, 36px)',
