@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Chess, Square } from 'chess.js';
 import { getGame } from '@/lib/stacks';
+import { useGameSync } from '@/lib/useGameSync';
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -46,7 +47,21 @@ export default function ChessBoard({ gameId, onMove }: ChessBoardProps) {
   const [legalTargets, setLegalTargets] = useState<Square[]>([]);
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
 
-  // Sync board from chain when gameId changes
+  function applyChainData(data: unknown) {
+    const d = data as { value?: { moves?: { value: { value: string }[] } } };
+    if (!d?.value) return;
+    const moves = d.value.moves?.value ?? [];
+    const g = new Chess();
+    moves.forEach((m: { value: string }) => {
+      const s = m.value;
+      try { g.move({ from: s.slice(0, 2) as Square, to: s.slice(2, 4) as Square, promotion: s[4] || undefined }); }
+      catch { /* skip invalid stored move */ }
+    });
+    setGame(g);
+    setMoveHistory(g.history());
+  }
+
+  // Initial load when gameId changes
   useEffect(() => {
     if (!gameId) {
       setGame(new Chess());
@@ -55,18 +70,11 @@ export default function ChessBoard({ gameId, onMove }: ChessBoardProps) {
       setLegalTargets([]);
       return;
     }
-    getGame(gameId).then(data => {
-      if (!data?.value) return;
-      const moves: { value: string }[] = data.value.moves?.value ?? [];
-      const g = new Chess();
-      moves.forEach(m => {
-        const s = m.value;
-        g.move({ from: s.slice(0, 2) as Square, to: s.slice(2, 4) as Square });
-      });
-      setGame(g);
-      setMoveHistory(g.history());
-    });
+    getGame(gameId).then(applyChainData);
   }, [gameId]);
+
+  // Periodic sync while game is active
+  useGameSync(gameId, applyChainData);
 
   const handleSquareClick = useCallback((row: number, col: number) => {
     const sq = toSquareName(row, col);
