@@ -67,4 +67,15 @@ describe('chess contract', () => {
     );
     expect(result).toBeErr(Cl.uint(104));
   });
+
+  it('rejects a move string shorter than 4 characters', () => {
+    simnet.callPublicFn('chess', 'create-game', [Cl.principal(wallet2)], wallet1);
+    const { result } = simnet.callPublicFn(
+      'chess',
+      'make-move',
+      [Cl.uint(1), Cl.stringAscii('e2')],
+      wallet1,
+    );
+    expect(result).toBeErr(Cl.uint(102));
+  });
 });
