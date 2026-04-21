@@ -44,3 +44,26 @@ export async function getGameCount() {
     return null;
   }
 }
+
+/**
+ * Fetches all games up to the current count and returns those
+ * where the given address is white or black.
+ */
+export async function getGamesByPlayer(address: string): Promise<{ id: number; data: unknown }[]> {
+  try {
+    const countRes = await readOnly('get-game-count', []);
+    const count = countRes?.value ? Number(countRes.value) : 0;
+    const results = await Promise.all(
+      Array.from({ length: count }, (_, i) =>
+        readOnly('get-game', [uintCV(i + 1)]).then(data => ({ id: i + 1, data }))
+      )
+    );
+    return results.filter(({ data }) => {
+      const v = (data as { value?: { white?: { value: string }; black?: { value: string } } })?.value;
+      return v?.white?.value === address || v?.black?.value === address;
+    });
+  } catch (err) {
+    console.error('[stacks] getGamesByPlayer failed:', err);
+    return [];
+  }
+}
