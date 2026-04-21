@@ -11,6 +11,7 @@
 
 (define-constant ERR-NOT-AUTHORIZED  (err u100))
 (define-constant ERR-GAME-NOT-FOUND  (err u101))
+(define-constant ERR-INVALID-MOVE    (err u102))
 (define-constant ERR-NOT-YOUR-TURN   (err u103))
 (define-constant ERR-GAME-OVER       (err u104))
 (define-constant ERR-SAME-PLAYER     (err u105))
@@ -66,11 +67,12 @@
   )
 )
 
-;; Submit a move for the active game. Enforces turn order.
+;; Submit a move for the active game. Enforces turn order and minimum move length.
 (define-public (make-move (game-id uint) (move (string-ascii 10)))
   (let ((game (unwrap! (map-get? games { game-id: game-id }) ERR-GAME-NOT-FOUND)))
     (asserts! (is-eq (get status game) "active") ERR-GAME-OVER)
     (asserts! (is-player-turn game) ERR-NOT-YOUR-TURN)
+    (asserts! (>= (len move) u4) ERR-INVALID-MOVE)
     (map-set games
       { game-id: game-id }
       (merge game {
