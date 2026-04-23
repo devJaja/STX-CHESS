@@ -12,7 +12,12 @@ export default defineConfig({
     environmentOptions: {
       clarinet: {
         ...getClarinetVitestsArgv(),
+        // Run all tests in a single simnet instance for speed
+        initBeforeEach: false,
       },
     },
+    // Increase timeout for simnet initialization
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
   },
 });
