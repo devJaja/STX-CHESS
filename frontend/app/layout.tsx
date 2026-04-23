@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 
 export const metadata: Metadata = {
   title: 'Stack Chess — Chess on Bitcoin',
@@ -13,6 +13,16 @@ export const metadata: Metadata = {
     description: 'Play chess on Bitcoin via the Stacks blockchain.',
     type: 'website',
   },
+  icons: { icon: '/favicon.ico' },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f8f9fb' },
+    { media: '(prefers-color-scheme: dark)',  color: '#0d0f14' },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
