@@ -1,7 +1,7 @@
 import { StacksMainnet, StacksTestnet } from '@stacks/network';
 import { callReadOnlyFunction, cvToJSON, uintCV } from '@stacks/transactions';
 
-// ── Config (env vars with fallbacks) ────────────────────────
+// ── Config ───────────────────────────────────────────────────
 const isMainnet = process.env.NEXT_PUBLIC_NETWORK !== 'testnet';
 
 export const NETWORK          = isMainnet ? new StacksMainnet() : new StacksTestnet();
@@ -45,17 +45,38 @@ export async function getGameCount() {
   }
 }
 
+export async function getGameStatus(gameId: number) {
+  try {
+    return await readOnly('get-game-status', [uintCV(gameId)]);
+  } catch (err) {
+    console.error('[stacks] getGameStatus failed:', err);
+    return null;
+  }
+}
+
+export async function getMoveCount(gameId: number) {
+  try {
+    return await readOnly('get-move-count', [uintCV(gameId)]);
+  } catch (err) {
+    console.error('[stacks] getMoveCount failed:', err);
+    return null;
+  }
+}
+
 /**
- * Fetches all games up to the current count and returns those
- * where the given address is white or black.
+ * Fetches the last `limit` games and returns those where the given address is white or black.
  */
-export async function getGamesByPlayer(address: string): Promise<{ id: number; data: unknown }[]> {
+export async function getGamesByPlayer(
+  address: string,
+  limit = 50,
+): Promise<{ id: number; data: unknown }[]> {
   try {
     const countRes = await readOnly('get-game-count', []);
     const count = countRes?.value ? Number(countRes.value) : 0;
+    const start = Math.max(1, count - limit + 1);
     const results = await Promise.all(
-      Array.from({ length: count }, (_, i) =>
-        readOnly('get-game', [uintCV(i + 1)]).then(data => ({ id: i + 1, data }))
+      Array.from({ length: count - start + 1 }, (_, i) =>
+        readOnly('get-game', [uintCV(start + i)]).then(data => ({ id: start + i, data }))
       )
     );
     return results.filter(({ data }) => {
