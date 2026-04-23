@@ -1,18 +1,15 @@
 {
   "name": "stack-chess",
-  "version": "1.0.0",
-  "description": "Chess game on Stacks blockchain",
+  "version": "2.1.0",
+  "description": "On-chain chess on the Stacks blockchain",
   "scripts": {
     "test": "vitest run",
-    "check": "clarinet check"
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
-    "@hirosystems/clarinet-sdk": "^2.0.0",
+    "@hirosystems/clarinet-sdk": "^2.13.0",
     "@stacks/transactions": "^6.16.1",
-    "@types/node": "^20",
-    "vitest": "^1.0.0"
-  },
-  "dependencies": {
-    "vitest-environment-clarinet": "^3.0.2"
+    "vitest": "^2.1.9"
   }
 }
