@@ -57,3 +57,38 @@ jobs:
           NEXT_PUBLIC_CONTRACT_ADDRESS: SP19PS42C7R7BR4VCX2YN8KPHXSB0ZC19K6PFEKTC
           NEXT_PUBLIC_CONTRACT_NAME: chess-v2
           NEXT_PUBLIC_NETWORK: mainnet
+
+  # ── Security audit ────────────────────────────────────────
+  audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Audit root dependencies
+        run: npm audit --audit-level=high || true
+
+      - name: Audit frontend dependencies
+        working-directory: frontend
+        run: npm audit --audit-level=high || true
+
+  # ── Secret scan ───────────────────────────────────────────
+  secrets:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for accidental secret patterns
+        run: |
+          if git log --all -p | grep -iE "(mnemonic|private_key|seed_phrase)\s*=\s*\S{10}" | grep -v "example\|placeholder\|your-"; then
+            echo "Potential secret found in git history!"
+            exit 1
+          fi
+          echo "No secrets detected."
