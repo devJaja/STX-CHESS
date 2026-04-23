@@ -16,3 +16,6 @@ plan:
             anchor-block-only: true
             clarity-version: 2
       epoch: "2.4"
+# Deployed: 2026-04-21
+# Contract: SP19PS42C7R7BR4VCX2YN8KPHXSB0ZC19K6PFEKTC.chess-v2
+# Explorer: https://explorer.hiro.so/address/SP19PS42C7R7BR4VCX2YN8KPHXSB0ZC19K6PFEKTC?chain=mainnet
