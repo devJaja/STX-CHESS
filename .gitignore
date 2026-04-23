@@ -26,3 +26,4 @@ settings/Testnet.toml
 .DS_Store
 *.log
 .vercel
+scripts/.env
