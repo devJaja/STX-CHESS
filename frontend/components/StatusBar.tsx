@@ -1,19 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { CONTRACT_ADDRESS, CONTRACT_NAME, NETWORK, getGameCount } from '@/lib/stacks';
 
 export default function StatusBar() {
   const isMainnet = NETWORK.isMainnet();
   const network = isMainnet ? 'Mainnet' : 'Testnet';
   const [gameCount, setGameCount] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+  const refresh = useCallback(() => {
     if (!CONTRACT_ADDRESS) return;
-    getGameCount().then(res => {
-      if (res?.value != null) setGameCount(Number(res.value));
-    });
+    setLoading(true);
+    getGameCount()
+      .then(res => { if (res?.value != null) setGameCount(Number(res.value)); })
+      .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
 
   return (
     <div
@@ -22,7 +26,7 @@ export default function StatusBar() {
     >
       <span className="flex items-center gap-1.5">
         <span
-          className="w-1.5 h-1.5 rounded-full shrink-0"
+          className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse"
           style={{ background: isMainnet ? '#4ade80' : '#facc15' }}
         />
         {network}
@@ -37,9 +41,17 @@ export default function StatusBar() {
       {gameCount !== null && (
         <>
           <span className="opacity-30">|</span>
-          <span>{gameCount} game{gameCount !== 1 ? 's' : ''}</span>
+          <span>{gameCount} game{gameCount !== 1 ? 's' : ''} on-chain</span>
         </>
       )}
+      <button
+        onClick={refresh}
+        disabled={loading}
+        aria-label="Refresh game count"
+        className="opacity-50 hover:opacity-100 transition-opacity disabled:opacity-20 ml-auto"
+      >
+        ↻
+      </button>
     </div>
   );
 }
