@@ -9,10 +9,11 @@ build
 *.tsbuildinfo
 next-env.d.ts
 
-# Environment variables (never commit secrets)
+# Environment variables — NEVER commit these
 .env
 .env.local
 .env*.local
+scripts/.env
 
 # Clarinet / Stacks
 .clarinet
@@ -26,4 +27,7 @@ settings/Testnet.toml
 .DS_Store
 *.log
 .vercel
-scripts/.env
+.idea
+.vscode
+*.swp
+*.swo
