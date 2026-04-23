@@ -7,7 +7,12 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
   title: 'Stack Chess — Chess on Bitcoin',
-  description: 'Decentralized chess on the Stacks blockchain',
+  description: 'Decentralized chess on the Stacks blockchain — every move recorded on-chain.',
+  openGraph: {
+    title: 'Stack Chess',
+    description: 'Play chess on Bitcoin via the Stacks blockchain.',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
