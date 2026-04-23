@@ -13,6 +13,7 @@ const userSession = new UserSession({ appConfig });
 
 export default function WalletConnect({ onConnect }: WalletConnectProps) {
   const [address, setAddress] = useState('');
+  const [connecting, setConnecting] = useState(false);
 
   // Restore session on mount if already signed in via legacy flow
   useEffect(() => {
@@ -30,6 +31,7 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
       alert('Leather wallet not detected. Please install the extension from leather.io');
       return;
     }
+    setConnecting(true);
     try {
       const res = await leather.request('getAddresses');
       const addr = res?.result?.addresses?.find((a: { type: string; address: string }) => a.type === 'stx')?.address;
@@ -39,6 +41,8 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
       }
     } catch (err) {
       console.error('[WalletConnect] connect failed:', err);
+    } finally {
+      setConnecting(false);
     }
   }, [onConnect]);
 
@@ -54,7 +58,7 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
         className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg transition-opacity hover:opacity-80"
         style={{ background: 'var(--accent)', color: '#fff' }}
       >
-        Connect Wallet
+        {connecting ? 'Connecting…' : 'Connect Wallet'}
       </button>
     );
   }
